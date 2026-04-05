@@ -1,0 +1,57 @@
+@import "tailwindcss";
+
+@theme {
+  --font-headline: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Inter", ui-sans-serif, system-ui, sans-serif;
+
+  --color-primary: #b7001a;
+  --color-primary-container: #e60023;
+  --color-on-primary: #ffffff;
+  --color-on-primary-container: #fff7f6;
+  
+  --color-secondary: #575e70;
+  --color-secondary-container: #d9dff5;
+  --color-on-secondary-container: #5c6274;
+
+  --color-tertiary: #005f90;
+  --color-tertiary-container: #0079b6;
+  --color-on-tertiary: #ffffff;
+
+  --color-surface: #f8f9fa;
+  --color-surface-container: #edeeef;
+  --color-surface-container-low: #f3f4f5;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-high: #e7e8e9;
+  --color-surface-container-highest: #e1e3e4;
+  
+  --color-on-surface: #191c1d;
+  --color-on-surface-variant: #5e3f3c;
+  
+  --color-outline: #936e6b;
+  --color-outline-variant: #e8bcb8;
+
+  --radius-xl: 1.5rem;
+  --radius-2xl: 2rem;
+  --radius-3xl: 3rem;
+}
+
+@layer base {
+  @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap');
+
+  body {
+    @apply font-body bg-surface text-on-surface antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-headline;
+  }
+}
+
+.primary-gradient {
+  background: linear-gradient(135deg, #b7001a 0%, #e60023 100%);
+}
+
+.glass-nav {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(24px);
+}
