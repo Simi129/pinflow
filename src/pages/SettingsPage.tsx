@@ -1,86 +1,133 @@
-import { useEffect, useState } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
-import { User, Bell, Lock, CreditCard, CheckCircle, XCircle } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Sidebar } from '../components/Navigation';
+import { Camera, Plus, Trash2, MousePointer2, Brush } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 import PinterestConnect from '../components/dashboard/PinterestConnect';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 
 export default function SettingsPage() {
+  const [user, setUser] = useState<any>(null);
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const [notification, setNotification] = useState<{
-    show: boolean;
-    type: 'success' | 'error';
-    message: string;
-  }>({ show: false, type: 'success', message: '' });
+  const [toast, setToast] = useState<{ type: 'success' | 'error'; msg: string } | null>(null);
 
   useEffect(() => {
-    const pinterestConnected = searchParams.get('pinterest_connected');
-    const pinterestError = searchParams.get('pinterest_error');
+    supabase.auth.getUser().then(({ data: { user } }) => setUser(user));
+  }, []);
 
-    if (pinterestConnected === 'true') {
-      setNotification({ show: true, type: 'success', message: 'Pinterest connected successfully! 🎉' });
-      setTimeout(() => navigate('/dashboard/settings', { replace: true }), 1000);
-      setTimeout(() => setNotification(prev => ({ ...prev, show: false })), 5000);
+  // Обработка Pinterest OAuth callback
+  useEffect(() => {
+    const connected = searchParams.get('pinterest_connected');
+    const error = searchParams.get('pinterest_error');
+    if (connected === 'true') {
+      setToast({ type: 'success', msg: 'Pinterest connected successfully! 🎉' });
+      setTimeout(() => navigate('/settings', { replace: true }), 1000);
+      setTimeout(() => setToast(null), 5000);
     }
-
-    if (pinterestError) {
-      setNotification({ show: true, type: 'error', message: `Failed to connect Pinterest: ${pinterestError}` });
-      setTimeout(() => navigate('/dashboard/settings', { replace: true }), 1000);
-      setTimeout(() => setNotification(prev => ({ ...prev, show: false })), 5000);
+    if (error) {
+      setToast({ type: 'error', msg: `Failed to connect Pinterest: ${error}` });
+      setTimeout(() => navigate('/settings', { replace: true }), 1000);
+      setTimeout(() => setToast(null), 5000);
     }
   }, [searchParams, navigate]);
 
   return (
-    <>
-      {/* Toast notification */}
-      {notification.show && (
+    <div className="flex min-h-screen bg-surface">
+      <Sidebar user={user} />
+
+      {/* Toast */}
+      {toast && (
         <div className="fixed top-4 right-4 z-50">
-          <div className={`rounded-lg shadow-lg p-4 min-w-[320px] max-w-md ${notification.type === 'success' ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'}`}>
-            <div className="flex items-start gap-3">
-              {notification.type === 'success'
-                ? <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-                : <XCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />}
-              <p className={`font-medium text-sm ${notification.type === 'success' ? 'text-green-800' : 'text-red-800'}`}>
-                {notification.message}
-              </p>
-              <button onClick={() => setNotification(prev => ({ ...prev, show: false }))} className="flex-shrink-0 text-slate-400 hover:text-slate-600 ml-auto">
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
+          <div className={`rounded-xl shadow-lg px-5 py-4 text-sm font-medium border ${toast.type === 'success' ? 'bg-green-50 border-green-200 text-green-800' : 'bg-red-50 border-red-200 text-red-800'}`}>
+            {toast.msg}
           </div>
         </div>
       )}
 
-      <header className="h-16 bg-white border-b border-slate-200 px-8 flex items-center sticky top-0 z-10">
-        <h1 className="text-xl font-semibold text-slate-900">Settings</h1>
-      </header>
+      <main className="flex-1 ml-64 min-h-screen p-8 lg:p-12">
+        <header className="mb-10">
+          <h1 className="text-4xl font-extrabold tracking-tight text-on-surface mb-2">Account Settings</h1>
+          <p className="text-on-surface-variant">Manage your profile, integrations, and application preferences.</p>
+        </header>
 
-      <div className="p-8 max-w-4xl space-y-6">
-        {/* Pinterest Connection */}
-        <PinterestConnect />
+        <div className="grid grid-cols-12 gap-8 items-start">
+          {/* Vertical Tabs */}
+          <div className="col-span-12 lg:col-span-3 space-y-2">
+            <button className="w-full text-left px-5 py-3 rounded-xl bg-surface-container-lowest text-primary font-bold shadow-sm transition-all">Profile</button>
+            <button className="w-full text-left px-5 py-3 rounded-xl hover:bg-surface-container-low text-on-surface-variant font-medium transition-all">Connections</button>
+            <button className="w-full text-left px-5 py-3 rounded-xl hover:bg-surface-container-low text-on-surface-variant font-medium transition-all">Billing</button>
+            <button className="w-full text-left px-5 py-3 rounded-xl hover:bg-surface-container-low text-on-surface-variant font-medium transition-all">Notifications</button>
+          </div>
 
-        {/* Other settings */}
-        {[
-          { icon: <User size={20} />, title: 'Profile', description: 'Manage your profile information' },
-          { icon: <Bell size={20} />, title: 'Notifications', description: 'Configure notification preferences' },
-          { icon: <Lock size={20} />, title: 'Privacy & Security', description: 'Control your privacy settings' },
-          { icon: <CreditCard size={20} />, title: 'Billing', description: 'Manage your subscription and billing' },
-        ].map((item, idx) => (
-          <button
-            key={idx}
-            className="w-full bg-white rounded-xl border border-slate-200 p-6 hover:border-rose-200 hover:shadow-sm transition-all text-left flex items-center gap-4"
-          >
-            <div className="w-12 h-12 rounded-lg bg-slate-50 flex items-center justify-center text-slate-600">
-              {item.icon}
+          <div className="col-span-12 lg:col-span-9 space-y-8">
+            {/* Profile Section */}
+            <section className="bg-surface-container-lowest rounded-xl p-8 shadow-sm">
+              <div className="mb-8">
+                <h2 className="text-2xl font-bold text-on-surface">Public Profile</h2>
+                <p className="text-on-surface-variant text-sm">Update your personal information and photo.</p>
+              </div>
+              <div className="flex flex-col md:flex-row gap-12">
+                <div className="flex-shrink-0 flex flex-col items-center">
+                  <div className="relative group">
+                    <div className="w-32 h-32 rounded-full bg-gradient-to-tr from-primary to-tertiary flex items-center justify-center text-white text-4xl font-black">
+                      {user?.user_metadata?.full_name?.charAt(0) || user?.email?.charAt(0).toUpperCase() || '?'}
+                    </div>
+                    <button className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Camera className="text-white" size={24} />
+                    </button>
+                  </div>
+                  <p className="mt-4 text-xs font-bold text-primary cursor-pointer hover:underline">Change Photo</p>
+                </div>
+                <div className="flex-grow grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold text-on-surface-variant">Display Name</label>
+                    <input
+                      className="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/20 text-on-surface outline-none"
+                      type="text"
+                      defaultValue={user?.user_metadata?.full_name || ''}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold text-on-surface-variant">Email Address</label>
+                    <input
+                      className="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-on-surface outline-none opacity-60 cursor-not-allowed"
+                      type="email"
+                      defaultValue={user?.email || ''}
+                      disabled
+                    />
+                  </div>
+                  <div className="md:col-span-2 space-y-2">
+                    <label className="text-sm font-bold text-on-surface-variant">Bio</label>
+                    <textarea
+                      className="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/20 text-on-surface outline-none resize-none"
+                      rows={3}
+                      placeholder="Tell us about yourself..."
+                    />
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* Pinterest Connection — реальный компонент */}
+            <section className="bg-surface-container-lowest rounded-xl p-8 shadow-sm">
+              <div className="mb-8">
+                <h2 className="text-2xl font-bold text-on-surface">Connections</h2>
+                <p className="text-on-surface-variant text-sm">Manage your linked Pinterest accounts and APIs.</p>
+              </div>
+              <PinterestConnect />
+            </section>
+
+            <div className="flex justify-end gap-4 pb-12">
+              <button className="px-8 py-3 rounded-xl border border-outline-variant/15 text-on-surface-variant font-bold hover:bg-surface-container-high transition-all">
+                Cancel
+              </button>
+              <button className="px-8 py-3 rounded-xl primary-gradient text-on-primary font-bold shadow-md hover:scale-105 transition-all">
+                Save Changes
+              </button>
             </div>
-            <div>
-              <h3 className="font-semibold text-slate-900">{item.title}</h3>
-              <p className="text-sm text-slate-500">{item.description}</p>
-            </div>
-          </button>
-        ))}
-      </div>
-    </>
+          </div>
+        </div>
+      </main>
+    </div>
   );
 }

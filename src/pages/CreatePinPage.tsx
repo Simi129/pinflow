@@ -1,14 +1,23 @@
+import React from 'react';
+import { Sidebar } from '../components/Navigation';
 import CreatePinForm from '../components/dashboard/CreatePinForm';
 
 export default function CreatePinPage() {
   return (
-    <>
-      <header className="h-16 bg-white border-b border-slate-200 px-8 flex items-center sticky top-0 z-10">
-        <h1 className="text-xl font-semibold text-slate-900">Create Pin</h1>
-      </header>
-      <div className="p-8 max-w-2xl">
+    <div className="flex min-h-screen bg-surface">
+      <Sidebar />
+
+      <main className="flex-1 ml-64 p-12 max-w-7xl mx-auto">
+        <header className="mb-12">
+          <h1 className="text-4xl font-extrabold tracking-tight text-on-surface mb-2">Create New Pin</h1>
+          <p className="text-on-surface-variant max-w-2xl">
+            Craft a beautiful pin to inspire your audience. Use high-resolution images and clear descriptions for better reach.
+          </p>
+        </header>
+
+        {/* Реальная форма из Next.js — загрузка изображений, борды, публикация, планирование */}
         <CreatePinForm />
-      </div>
-    </>
+      </main>
+    </div>
   );
 }

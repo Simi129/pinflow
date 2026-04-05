@@ -1,152 +1,192 @@
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Sidebar } from '../components/Navigation';
+import { 
+  TrendingUp, 
+  Eye, 
+  Heart, 
+  MousePointer2, 
+  Calendar, 
+  Bell, 
+  ChevronDown,
+  ArrowUpRight,
+  ArrowRight,
+  Sparkles,
+  RefreshCw,
+  Search,
+  History
+} from 'lucide-react';
+import { motion } from 'motion/react';
+import { cn } from '../lib/utils';
 import { supabase } from '../lib/supabase';
-import type { User } from '../lib/types';
-import { TrendingUp, Users, Eye, Heart, Bell, Search, Plus } from 'lucide-react';
 import PinterestConnect from '../components/dashboard/PinterestConnect';
 
 export default function DashboardPage() {
-  const navigate = useNavigate();
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
-    const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        setUser({ id: user.id, email: user.email!, full_name: user.user_metadata?.full_name });
-      }
-    };
-    getUser();
+    supabase.auth.getUser().then(({ data: { user } }) => setUser(user));
   }, []);
 
+  const metrics = [
+    { label: 'Total Impressions', value: '1.2M', trend: '+12%', icon: Eye, color: 'primary' },
+    { label: 'Engagements', value: '84.2K', trend: '+8%', icon: Heart, color: 'primary' },
+    { label: 'Click-throughs', value: '12.5%', trend: 'Stable', icon: MousePointer2, color: 'tertiary' },
+  ];
+
+  const topPins = [
+    { title: 'Modern Architecture Minimalist Trends 2024', views: '42.8K', saves: '1.2K', growth: '+18%', image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=200&q=80' },
+    { title: 'The Art of Morning Rituals & Wellness', views: '31.2K', saves: '840', growth: '+12%', image: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=200&q=80' },
+    { title: 'Sustainable Fashion Essentials Guide', views: '28.5K', saves: '520', growth: '+5%', image: 'https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=200&q=80' },
+  ];
+
+  const automations = [
+    { name: 'Auto-Pin Batch #42', status: 'Successful', statusColor: 'text-green-600', icon: Sparkles, iconBg: 'bg-primary/10', iconColor: 'text-primary' },
+    { name: 'Content Sync', status: 'Active', statusColor: 'text-on-surface-variant', icon: RefreshCw, iconBg: 'bg-tertiary/10', iconColor: 'text-tertiary' },
+    { name: 'Niche Discovery', status: 'In Progress', statusColor: 'text-orange-600', icon: Search, iconBg: 'bg-orange-100', iconColor: 'text-orange-600' },
+    { name: 'Daily Cleanup', status: 'Idle', statusColor: 'text-on-surface-variant', icon: History, iconBg: 'bg-stone-100', iconColor: 'text-stone-500' },
+  ];
+
   return (
-    <>
-      {/* Header */}
-      <header className="h-16 bg-white border-b border-slate-200 px-8 flex items-center justify-between sticky top-0 z-10">
-        <div className="flex items-center gap-4 flex-1">
-          <div className="relative flex-1 max-w-md">
-            <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-            <input
-              type="text"
-              placeholder="Search pins, boards, analytics..."
-              className="w-full pl-10 pr-4 py-2 rounded-lg border border-slate-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-100 outline-none text-sm"
-            />
+    <div className="flex min-h-screen bg-surface">
+      <Sidebar user={user} />
+      
+      <main className="flex-1 ml-64 min-h-screen overflow-y-auto">
+        <header className="sticky top-0 bg-white/80 backdrop-blur-md z-40 px-8 py-6 flex justify-between items-center border-b border-stone-100">
+          <div>
+            <h1 className="text-2xl font-black text-on-surface tracking-tight">Performance Hub</h1>
+            <p className="text-on-surface-variant text-sm font-medium">
+              Welcome back, {user?.user_metadata?.full_name?.split(' ')[0] || user?.email?.split('@')[0] || 'there'} 👋
+            </p>
           </div>
-        </div>
-        <div className="flex items-center gap-3">
-          <button className="w-9 h-9 rounded-lg hover:bg-slate-50 flex items-center justify-center text-slate-600 transition-colors relative">
-            <Bell size={20} />
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-rose-500 rounded-full"></span>
-          </button>
-          <button
-            onClick={() => navigate('/dashboard/create')}
-            className="h-9 px-4 rounded-lg bg-slate-900 text-white text-sm font-medium hover:bg-slate-800 transition-colors flex items-center gap-2"
-          >
-            <Plus size={16} />
-            Create Pin
-          </button>
-        </div>
-      </header>
+          <div className="flex items-center gap-4">
+            <div className="bg-surface-container-low px-4 py-2 rounded-full flex items-center gap-2 text-xs font-medium text-on-surface-variant cursor-pointer hover:bg-surface-container-high transition-all">
+              <Calendar size={14} />
+              Last 30 Days
+              <ChevronDown size={14} />
+            </div>
+            <button className="w-10 h-10 rounded-full bg-surface-container-low flex items-center justify-center text-on-surface hover:bg-surface-container-high transition-colors">
+              <Bell size={20} />
+            </button>
+          </div>
+        </header>
 
-      {/* Content */}
-      <div className="p-8">
-        <div className="mb-8">
-          <h1 className="text-2xl font-semibold text-slate-900 mb-2">
-            Welcome back, {user?.full_name?.split(' ')[0] || 'there'}! 👋
-          </h1>
-          <p className="text-slate-500">Here's what's happening with your Pinterest account today.</p>
-        </div>
+        <div className="max-w-7xl mx-auto px-8 py-8 pb-12">
 
-        {/* Pinterest Connection */}
-        <div className="mb-8">
-          <PinterestConnect />
-        </div>
+          {/* Pinterest Connection */}
+          <div className="mb-8">
+            <PinterestConnect />
+          </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {[
-            { icon: <Eye className="w-5 h-5" />, label: 'Total Views', value: '12.5K', change: '+12.3%', up: true },
-            { icon: <Heart className="w-5 h-5" />, label: 'Engagements', value: '3.2K', change: '+8.1%', up: true },
-            { icon: <Users className="w-5 h-5" />, label: 'Followers', value: '1.8K', change: '+5.2%', up: true },
-            { icon: <TrendingUp className="w-5 h-5" />, label: 'Pins Created', value: '145', change: '+23%', up: true },
-          ].map((stat, idx) => (
-            <div key={idx} className="bg-white rounded-xl border border-slate-200 p-6 hover:shadow-lg transition-shadow">
-              <div className="flex items-center justify-between mb-4">
-                <div className="w-10 h-10 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center">
-                  {stat.icon}
+          {/* Metrics */}
+          <section className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            {metrics.map((m) => (
+              <div key={m.label} className="bg-surface-container-lowest p-6 rounded-xl shadow-sm relative overflow-hidden group">
+                <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                  <m.icon size={48} />
                 </div>
-                <span className={`text-xs font-semibold ${stat.up ? 'text-emerald-600' : 'text-red-600'}`}>
-                  {stat.change}
-                </span>
+                <p className="text-on-surface-variant text-sm font-semibold mb-1">{m.label}</p>
+                <div className="flex items-end gap-3">
+                  <h3 className="text-3xl font-black text-on-surface">{m.value}</h3>
+                  <span className={cn("font-bold text-sm mb-1 flex items-center", m.color === 'primary' ? "text-primary" : "text-secondary")}>
+                    <ArrowUpRight size={12} />
+                    {m.trend}
+                  </span>
+                </div>
+                <div className="mt-4 h-1 w-full bg-surface-container rounded-full overflow-hidden">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: '75%' }}
+                    className={cn("h-full", m.color === 'primary' ? "bg-primary" : "bg-tertiary")}
+                  />
+                </div>
               </div>
-              <h3 className="text-2xl font-bold text-slate-900 mb-1">{stat.value}</h3>
-              <p className="text-sm text-slate-500">{stat.label}</p>
-            </div>
-          ))}
-        </div>
+            ))}
+          </section>
 
-        {/* Charts and Upcoming */}
-        <div className="grid lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 bg-white rounded-xl border border-slate-200 shadow-sm">
-            <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-              <h3 className="text-base font-semibold text-slate-900">Performance Overview</h3>
-              <select className="text-sm border border-slate-200 rounded-lg px-3 py-1.5 outline-none focus:border-rose-500">
-                <option>Last 7 days</option>
-                <option>Last 30 days</option>
-                <option>Last 90 days</option>
-              </select>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Chart */}
+            <div className="lg:col-span-2 bg-surface-container-lowest p-8 rounded-xl shadow-sm">
+              <div className="flex justify-between items-center mb-8">
+                <h2 className="text-xl font-bold text-on-surface">Performance over time</h2>
+                <div className="flex gap-4">
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full bg-primary"></div>
+                    <span className="text-xs font-medium text-on-surface-variant">Impressions</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full bg-tertiary"></div>
+                    <span className="text-xs font-medium text-on-surface-variant">Saves</span>
+                  </div>
+                </div>
+              </div>
+              <div className="relative h-[300px] w-full flex items-end">
+                <svg className="w-full h-full" preserveAspectRatio="none" viewBox="0 0 1000 300">
+                  <path d="M0,250 C100,220 200,280 300,180 C400,80 500,150 600,100 C700,50 800,120 900,80 L1000,100" fill="none" stroke="#b7001a" strokeWidth="4" strokeLinecap="round" />
+                  <path d="M0,280 C150,260 250,220 350,240 C450,260 550,180 650,200 C750,220 850,160 1000,140" fill="none" opacity="0.6" stroke="#005f90" strokeWidth="4" strokeLinecap="round" />
+                </svg>
+                <div className="absolute left-[60%] top-[80px] bg-on-surface text-white text-[10px] py-1 px-2 rounded-lg transform -translate-x-1/2">602.4K Views</div>
+                <div className="absolute left-[60%] top-[100px] w-px h-[180px] bg-on-surface opacity-10"></div>
+              </div>
+              <div className="flex justify-between mt-6 text-[11px] font-bold text-on-surface-variant uppercase tracking-wider">
+                {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(day => <span key={day}>{day}</span>)}
+              </div>
             </div>
-            <div className="p-6">
-              <div className="flex items-end gap-2 h-64">
-                {[40, 70, 55, 80, 45, 65, 90].map((height, idx) => (
-                  <div key={idx} className="flex-1 flex flex-col justify-end">
-                    <div
-                      className="bg-gradient-to-t from-rose-500 to-orange-400 rounded-t transition-all hover:opacity-80"
-                      style={{ height: `${height}%` }}
-                    ></div>
+
+            {/* Top Pins */}
+            <div className="bg-surface-container-lowest p-8 rounded-xl shadow-sm">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-bold text-on-surface">Top Performing Pins</h2>
+                <button className="text-primary text-xs font-bold hover:underline">View All</button>
+              </div>
+              <div className="space-y-6">
+                {topPins.map((pin) => (
+                  <div key={pin.title} className="flex items-center gap-4 group cursor-pointer">
+                    <div className="w-16 h-20 rounded-lg overflow-hidden bg-stone-100 flex-shrink-0">
+                      <img className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" src={pin.image} alt={pin.title} referrerPolicy="no-referrer" />
+                    </div>
+                    <div className="flex-grow">
+                      <p className="text-xs font-bold text-on-surface line-clamp-1 mb-1">{pin.title}</p>
+                      <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-1 text-[10px] text-on-surface-variant"><Eye size={12} /> {pin.views}</div>
+                        <div className="flex items-center gap-1 text-[10px] text-on-surface-variant"><Heart size={12} /> {pin.saves}</div>
+                      </div>
+                    </div>
+                    <span className="text-[10px] font-black text-primary bg-primary/10 px-2 py-1 rounded-full">{pin.growth}</span>
                   </div>
                 ))}
               </div>
-              <div className="flex justify-between mt-4 text-xs text-slate-500">
-                {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day) => (
-                  <span key={day}>{day}</span>
-                ))}
+              <div className="mt-10 p-6 bg-surface-container rounded-xl text-center">
+                <p className="text-xs font-bold text-on-surface mb-2">Want better results?</p>
+                <p className="text-[11px] text-on-surface-variant mb-4">Our AI suggests posting between 7PM and 9PM for your niche.</p>
+                <button className="text-xs font-black text-on-surface flex items-center justify-center gap-2 w-full hover:translate-x-1 transition-transform">
+                  Schedule Now <ArrowRight size={14} />
+                </button>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm">
-            <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-              <h3 className="text-base font-semibold text-slate-900">Upcoming Posts</h3>
-              <button className="text-xs text-rose-600 font-medium hover:text-rose-700">View All</button>
+          {/* Automations */}
+          <section className="mt-8">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-bold text-on-surface">Recent Automations</h2>
+              <span className="text-xs text-on-surface-variant font-medium">3 running now</span>
             </div>
-            <div className="p-6 space-y-4">
-              {[
-                { title: 'Spring Garden Ideas', time: 'Today, 3:00 PM', status: 'scheduled' },
-                { title: 'Top 10 DIY Hacks', time: 'Tomorrow, 9:00 AM', status: 'scheduled' },
-                { title: 'Healthy Meal Prep', time: 'Wed, 12:30 PM', status: 'draft' },
-              ].map((post, idx) => (
-                <div key={idx} className="flex items-center gap-3 p-3 rounded-lg border border-slate-100 hover:border-rose-100 hover:bg-rose-50/30 transition-all cursor-pointer">
-                  <div className="w-12 h-12 rounded overflow-hidden flex-shrink-0 bg-gradient-to-br from-rose-200 to-orange-200"></div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-slate-900 truncate">{post.title}</p>
-                    <p className="text-xs text-slate-500">{post.time}</p>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              {automations.map((a) => (
+                <div key={a.name} className="p-4 bg-white rounded-xl border border-stone-100 flex items-center gap-4 shadow-sm hover:shadow-md transition-all">
+                  <div className={cn("w-10 h-10 rounded-lg flex items-center justify-center", a.iconBg, a.iconColor)}>
+                    <a.icon size={20} />
                   </div>
-                  <div className={`w-2 h-2 rounded-full ${post.status === 'scheduled' ? 'bg-emerald-500' : 'bg-slate-300'}`}></div>
+                  <div>
+                    <p className="text-xs font-bold">{a.name}</p>
+                    <p className={cn("text-[10px] font-bold", a.statusColor)}>{a.status}</p>
+                  </div>
                 </div>
               ))}
             </div>
-            <div className="px-6 pb-6">
-              <button
-                onClick={() => navigate('/dashboard/schedule')}
-                className="w-full py-2 border border-slate-200 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors"
-              >
-                View Schedule
-              </button>
-            </div>
-          </div>
+          </section>
         </div>
-      </div>
-    </>
+      </main>
+    </div>
   );
 }
