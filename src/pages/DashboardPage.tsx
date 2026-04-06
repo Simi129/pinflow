@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Sidebar } from '../components/Navigation';
 import { 
   TrendingUp, 
@@ -19,9 +19,11 @@ import { motion } from 'motion/react';
 import { cn } from '../lib/utils';
 import { supabase } from '../lib/supabase';
 import PinterestConnect from '../components/dashboard/PinterestConnect';
+import PinAnalyticsModal from '../components/dashboard/PinAnalyticsModal';
 
 export default function DashboardPage() {
   const [user, setUser] = useState<any>(null);
+  const [selectedPin, setSelectedPin] = useState<{ id: string; title: string } | null>(null);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => setUser(user));
@@ -34,9 +36,9 @@ export default function DashboardPage() {
   ];
 
   const topPins = [
-    { title: 'Modern Architecture Minimalist Trends 2024', views: '42.8K', saves: '1.2K', growth: '+18%', image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=200&q=80' },
-    { title: 'The Art of Morning Rituals & Wellness', views: '31.2K', saves: '840', growth: '+12%', image: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=200&q=80' },
-    { title: 'Sustainable Fashion Essentials Guide', views: '28.5K', saves: '520', growth: '+5%', image: 'https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=200&q=80' },
+    { id: 'pin_1', title: 'Modern Architecture Minimalist Trends 2024', views: '42.8K', saves: '1.2K', growth: '+18%', image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=200&q=80' },
+    { id: 'pin_2', title: 'The Art of Morning Rituals & Wellness', views: '31.2K', saves: '840', growth: '+12%', image: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=200&q=80' },
+    { id: 'pin_3', title: 'Sustainable Fashion Essentials Guide', views: '28.5K', saves: '520', growth: '+5%', image: 'https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=200&q=80' },
   ];
 
   const automations = [
@@ -140,7 +142,12 @@ export default function DashboardPage() {
               </div>
               <div className="space-y-6">
                 {topPins.map((pin) => (
-                  <div key={pin.title} className="flex items-center gap-4 group cursor-pointer">
+                  <div
+                    key={pin.id}
+                    className="flex items-center gap-4 group cursor-pointer hover:bg-surface-container-low rounded-xl p-2 -mx-2 transition-colors"
+                    onClick={() => setSelectedPin({ id: pin.id, title: pin.title })}
+                    title="Click to view analytics"
+                  >
                     <div className="w-16 h-20 rounded-lg overflow-hidden bg-stone-100 flex-shrink-0">
                       <img className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" src={pin.image} alt={pin.title} referrerPolicy="no-referrer" />
                     </div>
@@ -150,6 +157,7 @@ export default function DashboardPage() {
                         <div className="flex items-center gap-1 text-[10px] text-on-surface-variant"><Eye size={12} /> {pin.views}</div>
                         <div className="flex items-center gap-1 text-[10px] text-on-surface-variant"><Heart size={12} /> {pin.saves}</div>
                       </div>
+                      <p className="text-[10px] text-primary mt-1 opacity-0 group-hover:opacity-100 transition-opacity">Click for analytics →</p>
                     </div>
                     <span className="text-[10px] font-black text-primary bg-primary/10 px-2 py-1 rounded-full">{pin.growth}</span>
                   </div>
@@ -187,6 +195,16 @@ export default function DashboardPage() {
           </section>
         </div>
       </main>
+
+      {/* Pin Analytics Modal */}
+      {selectedPin && user && (
+        <PinAnalyticsModal
+          pinId={selectedPin.id}
+          userId={user.id}
+          pinTitle={selectedPin.title}
+          onClose={() => setSelectedPin(null)}
+        />
+      )}
     </div>
   );
 }

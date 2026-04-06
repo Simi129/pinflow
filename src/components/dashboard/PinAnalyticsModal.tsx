@@ -1,7 +1,17 @@
 import { useState, useEffect } from 'react';
 import { getPinAnalytics } from '../../lib/api';
-import type { PinAnalytics } from '../../lib/types';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
+import { PinAnalytics } from '../../lib/types';
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  BarChart,
+  Bar
+} from 'recharts';
 import { Eye, Heart, MousePointerClick, TrendingUp, X, Loader2 } from 'lucide-react';
 
 interface PinAnalyticsModalProps {
@@ -16,7 +26,9 @@ export default function PinAnalyticsModal({ pinId, userId, pinTitle, onClose }: 
   const [loading, setLoading] = useState(true);
   const [period, setPeriod] = useState(30);
 
-  useEffect(() => { loadPinAnalytics(); }, [period]);
+  useEffect(() => {
+    loadPinAnalytics();
+  }, [period]);
 
   const loadPinAnalytics = async () => {
     setLoading(true);
@@ -30,7 +42,7 @@ export default function PinAnalyticsModal({ pinId, userId, pinTitle, onClose }: 
     }
   };
 
-  const formatNumber = (num: number) => {
+  const formatNumber = (num: number): string => {
     if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
     if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
     return num.toString();
@@ -72,27 +84,38 @@ export default function PinAnalyticsModal({ pinId, userId, pinTitle, onClose }: 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl max-w-5xl w-full max-h-[90vh] overflow-y-auto">
+        {/* Header */}
         <div className="sticky top-0 bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between z-10">
           <div>
             <h2 className="text-xl font-bold text-slate-900">Pin Analytics</h2>
             <p className="text-sm text-slate-500 mt-1">{pinTitle}</p>
           </div>
           <div className="flex items-center gap-3">
-            <select value={period} onChange={(e) => setPeriod(Number(e.target.value))} className="px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500">
+            <select
+              value={period}
+              onChange={(e) => setPeriod(Number(e.target.value))}
+              className="px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500"
+            >
               <option value={7}>7 Days</option>
               <option value={30}>30 Days</option>
               <option value={60}>60 Days</option>
               <option value={90}>90 Days</option>
             </select>
-            <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-lg transition-colors"><X className="w-5 h-5 text-slate-500" /></button>
+            <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-lg transition-colors">
+              <X className="w-5 h-5 text-slate-500" />
+            </button>
           </div>
         </div>
 
+        {/* Content */}
         <div className="p-6">
           {loading ? (
-            <div className="flex items-center justify-center py-12"><Loader2 className="w-8 h-8 animate-spin text-rose-500" /></div>
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="w-8 h-8 animate-spin text-rose-500" />
+            </div>
           ) : (
             <>
+              {/* Stats Cards */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
                 {[
                   { icon: <Eye className="w-5 h-5" />, label: 'Impressions', value: formatNumber(totals.impressions), color: 'rose' },
@@ -101,13 +124,16 @@ export default function PinAnalyticsModal({ pinId, userId, pinTitle, onClose }: 
                   { icon: <TrendingUp className="w-5 h-5" />, label: 'Outbound', value: formatNumber(totals.outboundClicks), color: 'lime' },
                 ].map((stat, idx) => (
                   <div key={idx} className="bg-slate-50 rounded-xl p-4 border border-slate-200">
-                    <div className={`w-10 h-10 rounded-lg bg-${stat.color}-50 text-${stat.color}-600 flex items-center justify-center mb-3`}>{stat.icon}</div>
+                    <div className={`w-10 h-10 rounded-lg bg-${stat.color}-50 text-${stat.color}-600 flex items-center justify-center mb-3`}>
+                      {stat.icon}
+                    </div>
                     <p className="text-2xl font-bold text-slate-900 mb-1">{stat.value}</p>
                     <p className="text-sm text-slate-500">{stat.label}</p>
                   </div>
                 ))}
               </div>
 
+              {/* Line Chart */}
               <div className="bg-white rounded-xl border border-slate-200 p-6 mb-6">
                 <h3 className="text-lg font-semibold text-slate-900 mb-6">Performance Over Time</h3>
                 <ResponsiveContainer width="100%" height={300}>
@@ -123,6 +149,7 @@ export default function PinAnalyticsModal({ pinId, userId, pinTitle, onClose }: 
                 </ResponsiveContainer>
               </div>
 
+              {/* Bar Chart */}
               <div className="bg-white rounded-xl border border-slate-200 p-6">
                 <h3 className="text-lg font-semibold text-slate-900 mb-6">Engagement Breakdown</h3>
                 <ResponsiveContainer width="100%" height={250}>
@@ -138,6 +165,7 @@ export default function PinAnalyticsModal({ pinId, userId, pinTitle, onClose }: 
                 </ResponsiveContainer>
               </div>
 
+              {/* Engagement Rate */}
               <div className="mt-6 bg-gradient-to-br from-rose-50 to-orange-50 rounded-xl p-6 border border-rose-100">
                 <h3 className="text-lg font-semibold text-slate-900 mb-4">Engagement Rate</h3>
                 <div className="grid grid-cols-3 gap-4">
