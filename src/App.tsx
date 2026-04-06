@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { useEffect, useState } from 'react';
 import { supabase } from './lib/supabase';
 import AuthCallbackPage from './pages/AuthCallbackPage';
+import PinterestCallbackPage from './pages/PinterestCallbackPage';
 import LandingPage from './pages/LandingPage';
 import PricingPage from './pages/PricingPage';
 import LoginPage from './pages/LoginPage';
@@ -46,6 +47,7 @@ export default function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<LoginPage />} />
         <Route path="/auth/callback" element={<AuthCallbackPage />} />
+        <Route path="/pinterest/callback" element={<PinterestCallbackPage />} />
 
         {/* Protected */}
         <Route path="/dashboard" element={<RequireAuth><DashboardPage /></RequireAuth>} />
