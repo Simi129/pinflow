@@ -88,14 +88,28 @@ export function Sidebar({ className, user }: SidebarProps) {
 }
 
 export function Navbar() {
+  const location = useLocation();
+
+  const navLinks = [
+    { label: 'Features', to: '/#features' },
+    { label: 'Solutions', to: '/#solutions' },
+    { label: 'Pricing', to: '/#pricing' },
+  ];
+
   return (
     <nav className="bg-white/80 backdrop-blur-md sticky top-0 z-50 shadow-sm border-b border-stone-100">
       <div className="flex justify-between items-center w-full px-8 py-4 max-w-7xl mx-auto">
         <Link to="/" className="text-2xl font-black text-primary font-headline">PinFlow</Link>
         <div className="hidden md:flex items-center gap-8 font-headline font-bold text-lg tracking-tight">
-          <Link to="/#features" className="text-on-surface-variant hover:text-on-surface transition-all">Features</Link>
-          <Link to="/#solutions" className="text-on-surface-variant hover:text-on-surface transition-all">Solutions</Link>
-          <Link to="/pricing" className="text-primary border-b-2 border-primary">Pricing</Link>
+          {navLinks.map((link) => (
+            <a
+              key={link.label}
+              href={link.to}
+              className="text-on-surface-variant hover:text-on-surface transition-all"
+            >
+              {link.label}
+            </a>
+          ))}
         </div>
         <div className="flex items-center gap-4">
           <Link to="/login" className="text-on-surface-variant font-bold hover:text-on-surface">Login</Link>
@@ -117,7 +131,7 @@ export function Footer() {
         <div>
           <h6 className="font-headline font-bold text-on-surface mb-4">Product</h6>
           <ul className="space-y-2 text-on-surface-variant text-sm">
-            <li><Link to="#" className="hover:underline hover:text-primary">Features</Link></li>
+            <li><a href="/#features" className="hover:underline hover:text-primary">Features</a></li>
             <li><Link to="#" className="hover:underline hover:text-primary">API Docs</Link></li>
             <li><Link to="#" className="hover:underline hover:text-primary">Help Center</Link></li>
           </ul>

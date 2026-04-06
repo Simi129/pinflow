@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Mail, Lock, LayoutGrid } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const [isSignUp, setIsSignUp] = useState(false);
+  const location = useLocation();
+  const [isSignUp, setIsSignUp] = useState(location.pathname === '/signup');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
@@ -18,6 +19,13 @@ export default function LoginPage() {
       if (session) navigate('/dashboard');
     });
   }, [navigate]);
+
+  // Sync mode with route
+  useEffect(() => {
+    setIsSignUp(location.pathname === '/signup');
+    setError(null);
+    setSuccessMsg(null);
+  }, [location.pathname]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,6 +68,11 @@ export default function LoginPage() {
     });
   };
 
+  const toggleMode = () => {
+    const next = isSignUp ? '/login' : '/signup';
+    navigate(next);
+  };
+
   return (
     <div className="relative min-h-screen flex items-center justify-center p-6 sm:p-12 bg-surface">
       <div className="absolute inset-0 z-0 bg-surface-container-low opacity-50"></div>
@@ -83,7 +96,6 @@ export default function LoginPage() {
             </p>
           </div>
 
-          {/* Error / Success */}
           {error && (
             <div className="mb-6 px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm font-medium">
               {error}
@@ -190,7 +202,7 @@ export default function LoginPage() {
           <p className="text-on-secondary-container text-sm">
             {isSignUp ? 'Already have an account?' : 'New to PinFlow?'}{' '}
             <button
-              onClick={() => { setIsSignUp(!isSignUp); setError(null); setSuccessMsg(null); }}
+              onClick={toggleMode}
               className="font-bold text-primary ml-1 hover:underline"
             >
               {isSignUp ? 'Sign in' : 'Create an account'}
