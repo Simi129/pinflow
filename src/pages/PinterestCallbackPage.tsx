@@ -23,7 +23,7 @@ export default function PinterestCallbackPage() {
         const { data: { session } } = await supabase.auth.getSession();
 
         if (session) {
-          navigate('/dashboard/settings?pinterest_connected=true');
+          navigate('/settings?pinterest_connected=true');
         } else {
           // Сессия протухла — отправляем логиниться заново
           navigate('/login?redirect=/dashboard/settings');
