@@ -1,6 +1,7 @@
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
-// Pinterest Connection
+// ==================== Pinterest OAuth ====================
+
 export async function connectPinterest(userId: string) {
   window.location.href = `${API_URL}/auth/pinterest?user_id=${userId}`;
 }
@@ -19,7 +20,34 @@ export async function disconnectPinterest(userId: string) {
   return response.json();
 }
 
-// Boards
+// ==================== User Profile ====================
+
+export async function getUserProfile(userId: string) {
+  const response = await fetch(`${API_URL}/api/user/profile?user_id=${userId}`);
+  if (!response.ok) throw new Error('Failed to get user profile');
+  return response.json(); // { success, profile: { username, profile_image, follower_count, pin_count, board_count, monthly_views } }
+}
+
+// ==================== Pins ====================
+
+export async function getPins(userId: string, pageSize = 25, bookmark?: string) {
+  const params = new URLSearchParams({ user_id: userId, page_size: String(pageSize) });
+  if (bookmark) params.append('bookmark', bookmark);
+  const response = await fetch(`${API_URL}/api/pins?${params}`);
+  if (!response.ok) throw new Error('Failed to get pins');
+  return response.json(); // { success, pins: [...], bookmark, total }
+}
+
+export async function getBoardPins(boardId: string, userId: string, pageSize = 25, bookmark?: string) {
+  const params = new URLSearchParams({ user_id: userId, page_size: String(pageSize) });
+  if (bookmark) params.append('bookmark', bookmark);
+  const response = await fetch(`${API_URL}/api/boards/${boardId}/pins?${params}`);
+  if (!response.ok) throw new Error('Failed to get board pins');
+  return response.json(); // { success, pins: [...], bookmark, board_id }
+}
+
+// ==================== Boards ====================
+
 export async function getBoards(userId: string) {
   const response = await fetch(`${API_URL}/api/boards?user_id=${userId}`);
   if (!response.ok) throw new Error('Failed to get boards');
@@ -41,10 +69,7 @@ export async function createBoard(data: {
   return response.json();
 }
 
-export async function updateBoard(
-  boardId: string,
-  data: { user_id: string; name?: string; description?: string; privacy?: string }
-) {
+export async function updateBoard(boardId: string, data: { user_id: string; name?: string; description?: string; privacy?: string }) {
   const response = await fetch(`${API_URL}/api/boards/${boardId}`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
@@ -62,7 +87,8 @@ export async function deleteBoard(boardId: string, userId: string) {
   return response.json();
 }
 
-// Posts
+// ==================== Publish / Schedule ====================
+
 export async function publishNow(data: {
   user_id: string;
   board_id: string;
@@ -100,27 +126,22 @@ export async function schedulePost(data: {
   return response.json();
 }
 
-// Analytics
+// ==================== Analytics ====================
+
 export async function getAccountAnalytics(userId: string, days = 30) {
-  const response = await fetch(
-    `${API_URL}/api/analytics/account?user_id=${userId}&days=${days}`
-  );
+  const response = await fetch(`${API_URL}/api/analytics/account?user_id=${userId}&days=${days}`);
   if (!response.ok) throw new Error('Failed to get account analytics');
   return response.json();
 }
 
 export async function getPinAnalytics(pinId: string, userId: string, days = 30) {
-  const response = await fetch(
-    `${API_URL}/api/analytics/pin/${pinId}?user_id=${userId}&days=${days}`
-  );
+  const response = await fetch(`${API_URL}/api/analytics/pin/${pinId}?user_id=${userId}&days=${days}`);
   if (!response.ok) throw new Error('Failed to get pin analytics');
   return response.json();
 }
 
 export async function getBoardAnalytics(boardId: string, userId: string, days = 30) {
-  const response = await fetch(
-    `${API_URL}/api/analytics/board/${boardId}?user_id=${userId}&days=${days}`
-  );
+  const response = await fetch(`${API_URL}/api/analytics/board/${boardId}?user_id=${userId}&days=${days}`);
   if (!response.ok) throw new Error('Failed to get board analytics');
   return response.json();
 }
